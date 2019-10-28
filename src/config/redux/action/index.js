@@ -85,9 +85,28 @@ export const loginUserAPI = (data) => (dispatch) => {
 }
 
 export const addDataToAPI = (data) => (dispatch) => {
-    database().ref('notes/' + data.userId).pushe({
+    database().ref('notes/' + data.userId).push({
         title: data.title,
         content: data.content,
         date: data.date
+    })
+}
+
+export const getDataFormAPI = (userId) => (dispatch) => {
+    const urlNotes = database().ref('notes/' + userId);
+    return new Promise((resolve,reject) => {
+        urlNotes.on('value', function(snapshot) {
+            console.log('Get Data :', snapshot.val());
+
+            const data = [];
+            Object.keys(snapshot.val()).map(key => {
+                data.push({
+                    id: key,
+                    data: snapshot.val()[key]
+                })
+            });
+            dispatch({type: 'SET_NOTES', value: data})
+            resolve(snapshot.val())
+        });
     })
 }
